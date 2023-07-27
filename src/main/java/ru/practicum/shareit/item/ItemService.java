@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class ItemService {
 
     public Item update(Item item, Long id, Long sharerId) throws ValidationException {
         get(id);
-        if (get(id).getOwner().getId() != sharerId) {
+        if (!Objects.equals(get(id).getOwner().getId(), sharerId)) {
             throw new NotExistException("Вещь с sharerId=" + sharerId + " не существует");
         }
         item.setId(id);
@@ -48,7 +49,7 @@ public class ItemService {
 
     public List<Item> getAll(Long sharerId) {
         return itemStorage.getAll().stream()
-                .filter(item -> item.getOwner().getId() == sharerId)
+                .filter(item -> Objects.equals(item.getOwner().getId(), sharerId))
                 .collect(Collectors.toList());
     }
 
@@ -57,7 +58,7 @@ public class ItemService {
             return new ArrayList<>();
         }
         return itemStorage.getAll().stream()
-                .filter(item -> item.getAvailable())
+                .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());
