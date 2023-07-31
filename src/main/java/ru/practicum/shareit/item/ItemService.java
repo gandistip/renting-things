@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemStorage;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dao.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +20,18 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 @Slf4j
 public class ItemService {
     private final ItemStorage itemStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
 
-    public ItemService(ItemStorage itemStorage, UserService userService) {
+    public ItemService(ItemStorage itemStorage, UserStorage userStorage) {
         this.itemStorage = itemStorage;
-        this.userService = userService;
+        this.userStorage = userStorage;
     }
 
     public Item create(Item item, Long sharerId) {
-        item.setOwner(userService.get(sharerId));
+        log.info("Получить пользователя с id={}", sharerId);
+        User user = Optional.ofNullable(userStorage.get(sharerId))
+                .orElseThrow(() -> new NotExistException("Пользователь с id=" + sharerId + " не существует"));
+        item.setOwner(user);
         log.info("Создание вещи: {} c id={}", item.getName(), item.getId());
         return itemStorage.create(item);
     }
@@ -44,7 +48,8 @@ public class ItemService {
 
     public Item get(Long id) {
         log.info("Получить вещь с id={}", id);
-        return Optional.ofNullable(itemStorage.get(id)).orElseThrow(() -> new NotExistException("Вещь с id=" + id + " не существует"));
+        return Optional.ofNullable(itemStorage.get(id))
+                .orElseThrow(() -> new NotExistException("Вещь с id=" + id + " не существует"));
     }
 
     public List<Item> getAll(Long sharerId) {
