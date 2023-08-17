@@ -1,42 +1,58 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Collection;
 
 @RestController
-@RequestMapping(path = "/items")
+@RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
+@Slf4j
 public class ItemController {
+
     private final ItemService itemService;
 
     @PostMapping
-    public Item create(@Valid @RequestBody Item item,
-                       @RequestHeader("X-Sharer-User-Id") Long sharerId) {
-        return itemService.create(item, sharerId);
+    public ItemDto save(
+            @RequestBody @Valid ItemDto itemDto,
+            @RequestHeader("X-Sharer-User-Id") long userId) {
+        log.info("Вещь={} пользователя с id={} добавить", itemDto, userId);
+        return itemService.save(userId, itemDto);
     }
 
-    @PatchMapping("/{id}")
-    public Item create(@RequestBody Item item,
-                       @RequestHeader("X-Sharer-User-Id") Long sharerId,
-                       @PathVariable Long id) {
-        return itemService.update(item, id, sharerId);
+    @PatchMapping("/{itemId}")
+    public ItemDto update(
+            @PathVariable long itemId,
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestBody ItemDto itemDto) {
+        log.info("Вещь с id={} обновить на вещь={}", itemId, itemDto);
+        return itemService.update(itemId, userId, itemDto);
     }
 
-    @GetMapping("/{id}")
-    public Item get(@PathVariable Long id) {
-        return itemService.get(id);
+    @GetMapping("/{itemId}")
+    public ItemDto findByItemId(
+            @PathVariable long itemId,
+            @RequestHeader("X-Sharer-User-Id") long userId) {
+        log.info("Вещь с id={} получить", itemId);
+        return itemService.findByItemId(itemId, userId);
     }
 
     @GetMapping
-    public List<Item> getAll(@RequestHeader("X-Sharer-User-Id") Long sharerId) {
-        return itemService.getAll(sharerId);
+    public Collection<ItemDto> findAllByOwnerId(
+            @RequestHeader("X-Sharer-User-Id") long userId) {
+        log.info("Вещи владельца с id={} получить", userId);
+        return itemService.findAllByOwnerId(userId);
     }
 
     @GetMapping("/search")
-    public List<Item> search(@RequestParam(required = false, name = "text") String text) {
-        return itemService.search(text);
+    public Collection<ItemDto> findAllByText(
+            @RequestParam String text) {
+        log.info("Вещи с подстрокой={} получить", text);
+        return itemService.findAllByText(text);
     }
 }
