@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -9,32 +11,44 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
+@Validated
+@Slf4j
 public class UserController {
-    private final UserService userService;
 
-    @GetMapping
-    public List<User> getAll() {
-        return userService.getAll();
+    private final UserServiceImpl userService;
+
+    @PostMapping()
+    public UserDto save(
+            @RequestBody @Valid UserDto userDto) {
+        log.info("Пользователя={} создать", userDto);
+        return userService.save(userDto);
     }
 
-    @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        return userService.create(user);
+    @PatchMapping("/{userId}")
+    public UserDto update(
+            @RequestBody UserDto userDto,
+            @PathVariable long userId) {
+        log.info("Пользователя с id={} обновить на пользователя={}", userId, userDto);
+        return userService.update(userDto, userId);
     }
 
-    @GetMapping("/{id}")
-    public User get(@PathVariable Long id) {
-        return userService.get(id);
+    @DeleteMapping("/{userId}")
+    public void deleteById(
+            @PathVariable long userId) {
+        log.info("Пользователя с id={} удалить", userId);
+        userService.deleteById(userId);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        userService.delete(id);
+    @GetMapping()
+    public List<UserDto> findAll() {
+        log.info("Пользователей получить");
+        return userService.findAll();
     }
 
-    @PatchMapping("/{id}")
-    public User update(@RequestBody User user, @PathVariable Long id) {
-        user.setId(id);
-        return userService.update(user);
+    @GetMapping("/{userId}")
+    public UserDto findById(
+            @PathVariable long userId) {
+        log.info("Пользователя с id={} получить", userId);
+        return userService.findById(userId);
     }
 }
