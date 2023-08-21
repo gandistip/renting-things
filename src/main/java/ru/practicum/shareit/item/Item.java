@@ -5,10 +5,11 @@ import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "items")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

@@ -111,40 +111,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findAllByOwnerId(long userId) {
         userRepo.findById(userId).orElseThrow(() -> new NotExistException("Пользователь - не найден"));
-
-        List<ItemDto> itemsDto = new ArrayList<>();
-
-        for (ItemDto itemDto : itemRepo.findByOwnerId(userId).stream().map(ItemMapper::toItemDto).collect(Collectors.toList())) {
-
-            Booking lastBooking = bookingRepo.findFirstByItemIdAndStatusAndStartBeforeOrderByStartDesc(
-                    itemDto.getId(), Status.APPROVED, LocalDateTime.now());
-            if (lastBooking == null) {
-                itemDto.setLastBooking(null);
-            } else {
-                itemDto.setLastBooking(BookingMapper.toBookingDtoItem(lastBooking));
-            }
-
-            Booking nextBooking = bookingRepo.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
-                    itemDto.getId(), Status.APPROVED, LocalDateTime.now());
-            if (nextBooking == null) {
-                itemDto.setNextBooking(null);
-            } else {
-                itemDto.setNextBooking(BookingMapper.toBookingDtoItem(nextBooking));
-            }
-
-            itemsDto.add(itemDto);
-        }
-
-        for (ItemDto itemDto : itemsDto) {
-            List<Comment> comments = commentRepo.findByItemId(itemDto.getId());
-            if (comments.isEmpty()) {
-                itemDto.setComments(Collections.emptyList());
-            } else {
-                itemDto.setComments(comments.stream().map(CommentMapper::toCommentDto).collect(Collectors.toList()));
-            }
-        }
-
-        return itemsDto;
+        List<Item> items = itemRepo.findByOwnerId(userId);
+        return items.stream().map(item -> findByItemId(item.getId(), userId)).collect(Collectors.toList());
     }
 
     @Transactional
