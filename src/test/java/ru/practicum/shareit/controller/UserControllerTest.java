@@ -24,14 +24,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
 
-    UserDto userDto1;
-    UserDto userDto2;
     @MockBean
     private UserServiceImpl userService;
+
     @Autowired
     private ObjectMapper mapper;
+
     @Autowired
     private MockMvc mvc;
+
+
+    UserDto userDto1;
+    UserDto userDto2;
 
     @BeforeEach
     void setUp() {
@@ -54,10 +58,10 @@ public class UserControllerTest {
         when(userService.save(any(UserDto.class))).thenReturn(userDto1);
 
         mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto1))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                .content(mapper.writeValueAsString(userDto1))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto1.getName()), String.class))
@@ -70,10 +74,10 @@ public class UserControllerTest {
         when(userService.update(any(UserDto.class), anyLong())).thenReturn(userDto2);
 
         mvc.perform(patch("/users/{userId}", 1L)
-                        .content(mapper.writeValueAsString(userDto2))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                    .content(mapper.writeValueAsString(userDto2))
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto2.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto2.getName()), String.class))
