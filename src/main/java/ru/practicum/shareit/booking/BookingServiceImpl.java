@@ -117,8 +117,7 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 bookings = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 break;
-            default:
-                bookings = Page.empty();
+            default: bookings = Page.empty();
         }
 
         return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
@@ -157,8 +156,7 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 bookings = bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 break;
-            default:
-                bookings = Page.empty();
+            default: bookings = Page.empty();
         }
 
         return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
