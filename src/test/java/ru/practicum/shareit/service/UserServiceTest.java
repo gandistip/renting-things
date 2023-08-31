@@ -19,20 +19,14 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class UserServiceTest {
 
+    User user1;
+    User user2;
+    UserDto userDto1;
+    UserDto userDto2;
     @Autowired
     private UserServiceImpl userService;
-
     @MockBean
     private UserRepo userRepo;
-
-    User user1;
-
-    User user2;
-
-    UserDto userDto1;
-
-    UserDto userDto2;
-
 
     @BeforeEach
     void setUp() {
@@ -52,7 +46,6 @@ public class UserServiceTest {
 
         userDto2 = UserMapper.toUserDto(user2);
     }
-
 
 
     @Test
@@ -85,7 +78,6 @@ public class UserServiceTest {
 
         verify(userRepo, times(1)).save(user1);
     }
-
 
 
     @Test
