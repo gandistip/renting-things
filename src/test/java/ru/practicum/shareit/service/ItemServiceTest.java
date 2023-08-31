@@ -163,8 +163,8 @@ public class ItemServiceTest {
         when(itemRepo.existsById(anyLong())).thenReturn(true);
         when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
         when(userRepo.existsById(anyLong())).thenReturn(true);
-        when(bookingRepo.findNextBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking1));
-        when(bookingRepo.findLastBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking2));
+        when(bookingRepo.findNextBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0,1))).thenReturn(List.of(booking1));
+        when(bookingRepo.findLastBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0,1))).thenReturn(List.of(booking2));
         when(commentRepo.findByItemId(anyLong())).thenReturn(List.of(comment));
 
         ItemDto itemDtoTest = itemService.findByItemId(item.getId(), user.getId());
@@ -182,8 +182,8 @@ public class ItemServiceTest {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(5 / 10, 10));
         when(itemRepo.findByOwnerId(anyLong())).thenReturn(List.of(item));
-        when(bookingRepo.findNextBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking1));
-        when(bookingRepo.findLastBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking2));
+        when(bookingRepo.findNextBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0,1))).thenReturn(List.of(booking1));
+        when(bookingRepo.findLastBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0,1))).thenReturn(List.of(booking2));
         when(commentRepo.findByItemId(anyLong())).thenReturn(List.of(comment));
 
         ItemDto itemDtoTest = itemService.findAllByOwnerId(user.getId(), 5, 10).get(0);

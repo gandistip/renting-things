@@ -54,6 +54,7 @@ public class UserServiceTest {
     }
 
 
+
     @Test
     void save() {
         when(userRepo.save(any(User.class))).thenReturn(user1);
@@ -84,6 +85,7 @@ public class UserServiceTest {
 
         verify(userRepo, times(1)).save(user1);
     }
+
 
 
     @Test
