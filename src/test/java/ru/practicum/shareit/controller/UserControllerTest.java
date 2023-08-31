@@ -24,28 +24,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
 
-    UserDto userDto1;
-    UserDto userDto2;
     @MockBean
     private UserServiceImpl userService;
     @Autowired
-    private ObjectMapper mapper;
-    @Autowired
     private MockMvc mvc;
+    @Autowired
+    private ObjectMapper mapper;
+
+    UserDto userDto1;
+    UserDto userDto2;
 
     @BeforeEach
     void setUp() {
 
         userDto1 = UserDto.builder()
                 .id(1L)
-                .name("andrey")
-                .email("andrey@ya.ru")
+                .name("userName1")
+                .email("u1@ya.ru")
                 .build();
 
         userDto2 = UserDto.builder()
                 .id(2L)
-                .name("ivan")
-                .email("ivan@yandex.ru")
+                .name("userName2")
+                .email("u2@ya.ru")
                 .build();
     }
 
@@ -62,6 +63,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto1.getName()), String.class))
                 .andExpect(jsonPath("$.email", is(userDto1.getEmail()), String.class));
+
         verify(userService, times(1)).save(userDto1);
     }
 
@@ -97,7 +99,6 @@ public class UserControllerTest {
 
     @Test
     void findAll() throws Exception {
-
         when(userService.findAll()).thenReturn(List.of(userDto1, userDto2));
 
         mvc.perform(get("/users"))

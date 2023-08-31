@@ -33,61 +33,58 @@ public class RequestServiceTest {
     @MockBean
     private RequestRepo requestRepo;
     @MockBean
-    private ItemRepo itemRepo;
-    @MockBean
     private UserRepo userRepo;
+    @MockBean
+    private ItemRepo itemRepo;
     @Mock
     private Util util;
 
+    private Item item;
     private User user1;
     private User user2;
     private Request request1;
     private Request request2;
     private RequestDto requestDto;
-    private Item item;
 
     @BeforeEach
     void beforeEach() {
 
         user1 = User.builder()
                 .id(1L)
-                .name("andrey")
-                .email("andrey@yandex.ru")
+                .name("userName1")
+                .email("u1@ya.ru")
                 .build();
 
         user2 = User.builder()
                 .id(2L)
-                .name("ivan")
-                .email("ivan@yandex.ru")
+                .name("userName2")
+                .email("u2@ya.ru")
                 .build();
 
         request1 = Request.builder()
                 .id(1L)
-                .description("req1 text")
+                .description("request descr 1")
                 .created(LocalDateTime.now())
                 .build();
 
         request2 = Request.builder()
                 .id(2L)
-                .description("req2 text")
+                .description("request descr 2")
                 .created(LocalDateTime.now())
+                .build();
+
+        requestDto = RequestDto.builder()
+                .description("request descr 1")
                 .build();
 
         item = Item.builder()
                 .id(1L)
-                .name("hammer")
-                .description("steel hammer")
+                .name("itemName")
+                .description("item descr")
                 .available(true)
                 .owner(user1)
                 .request(request1)
                 .build();
-
-        requestDto = RequestDto.builder()
-                .description("req1 text")
-                .build();
-
-        userRepo.save(user1);
-        userRepo.save(user2);
     }
 
     @Test
@@ -102,6 +99,23 @@ public class RequestServiceTest {
         assertEquals(requestDtoTest.getDescription(), request1.getDescription());
 
         verify(requestRepo, times(1)).save(any(Request.class));
+    }
+
+    @Test
+    void findByRequestId() {
+        when(userRepo.existsById(anyLong())).thenReturn(true);
+        when(requestRepo.existsById(anyLong())).thenReturn(true);
+        when(requestRepo.findById(anyLong())).thenReturn(Optional.ofNullable(request1));
+        when(itemRepo.findByRequestId(anyLong())).thenReturn(List.of(item));
+
+        RequestDto requestDtoTest = requestService.findByRequestId(user1.getId(), request1.getId());
+
+        assertEquals(requestDtoTest.getId(), request1.getId());
+        assertEquals(requestDtoTest.getDescription(), request1.getDescription());
+        assertEquals(requestDtoTest.getItems().get(0).getId(), item.getId());
+        assertEquals(requestDtoTest.getItems().get(0).getRequestId(), user1.getId());
+
+        verify(requestRepo, times(1)).findById(anyLong());
     }
 
     @Test
@@ -125,11 +139,11 @@ public class RequestServiceTest {
     @Test
     void findAllAlien() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
-        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(5 / 10, 10));
+        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(0, 5));
         when(requestRepo.findAllByRequesterIdNot(anyLong(), any(PageRequest.class))).thenReturn(List.of(request1));
         when(itemRepo.findAllByRequestIds(anyList())).thenReturn(List.of(item));
 
-        RequestDto requestDtoTest = requestService.findAllAlien(user1.getId(), 5, 10).get(0);
+        RequestDto requestDtoTest = requestService.findAllAlien(user1.getId(), 0, 5).get(0);
 
         assertEquals(requestDtoTest.getId(), request1.getId());
         assertEquals(requestDtoTest.getDescription(), request1.getDescription());
@@ -141,20 +155,4 @@ public class RequestServiceTest {
         verify(requestRepo, times(1)).findAllByRequesterIdNot(anyLong(), any(PageRequest.class));
     }
 
-    @Test
-    void findByRequestId() {
-        when(userRepo.existsById(anyLong())).thenReturn(true);
-        when(requestRepo.existsById(anyLong())).thenReturn(true);
-        when(requestRepo.findById(anyLong())).thenReturn(Optional.ofNullable(request1));
-        when(itemRepo.findByRequestId(anyLong())).thenReturn(List.of(item));
-
-        RequestDto requestDtoTest = requestService.findByRequestId(user1.getId(), request1.getId());
-
-        assertEquals(requestDtoTest.getId(), request1.getId());
-        assertEquals(requestDtoTest.getDescription(), request1.getDescription());
-        assertEquals(requestDtoTest.getItems().get(0).getId(), item.getId());
-        assertEquals(requestDtoTest.getItems().get(0).getRequestId(), user1.getId());
-
-        verify(requestRepo, times(1)).findById(anyLong());
-    }
 }

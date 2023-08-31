@@ -18,9 +18,9 @@ public class CommentMapper {
         return commentDto;
     }
 
-    public static Comment toComment(CommentDto commentDto, Item item, User user, LocalDateTime dateTime) {
+    public static Comment toComment(CommentDto dto, Item item, User user, LocalDateTime dateTime) {
         Comment comment = Comment.builder()
-                .text(commentDto.getText())
+                .text(dto.getText())
                 .created(dateTime)
                 .item(item)
                 .author(user)

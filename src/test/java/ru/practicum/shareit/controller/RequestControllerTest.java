@@ -28,10 +28,8 @@ public class RequestControllerTest {
 
     @MockBean
     private RequestService requestService;
-
     @Autowired
     private ObjectMapper mapper;
-
     @Autowired
     private MockMvc mvc;
 
@@ -43,13 +41,13 @@ public class RequestControllerTest {
 
         requestDto1 = RequestDto.builder()
                 .id(1L)
-                .description("req1 text")
+                .description("request descr 1")
                 .created(LocalDateTime.now())
                 .build();
 
         requestDto2 = RequestDto.builder()
                 .id(2L)
-                .description("req2 text")
+                .description("request descr 2")
                 .created(LocalDateTime.now())
                 .build();
     }
@@ -69,6 +67,23 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$.description", is(requestDto1.getDescription()), String.class));
 
         verify(requestService, times(1)).save(requestDto1, 1L);
+    }
+
+    @Test
+    void findByRequestId() throws Exception {
+        when(requestService.findByRequestId(anyLong(), anyLong())).thenReturn(requestDto1);
+
+        mvc.perform(get("/requests/{requestId}", requestDto1.getId())
+                        .content(mapper.writeValueAsString(requestDto1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(requestDto1.getId()), Long.class))
+                .andExpect(jsonPath("$.description", is(requestDto1.getDescription()), String.class));
+
+        verify(requestService, times(1)).findByRequestId(1L, 1L);
     }
 
     @Test
@@ -92,7 +107,7 @@ public class RequestControllerTest {
 
         mvc.perform(get("/requests/all")
                         .param("from", String.valueOf(0))
-                        .param("size", String.valueOf(10))
+                        .param("size", String.valueOf(5))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -100,23 +115,7 @@ public class RequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(requestDto1, requestDto2))));
 
-        verify(requestService, times(1)).findAllAlien(1L, 0, 10);
+        verify(requestService, times(1)).findAllAlien(1L, 0, 5);
     }
 
-    @Test
-    void findByRequestId() throws Exception {
-        when(requestService.findByRequestId(anyLong(), anyLong())).thenReturn(requestDto1);
-
-        mvc.perform(get("/requests/{requestId}", requestDto1.getId())
-                        .content(mapper.writeValueAsString(requestDto1))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(requestDto1.getId()), Long.class))
-                .andExpect(jsonPath("$.description", is(requestDto1.getDescription()), String.class));
-
-        verify(requestService, times(1)).findByRequestId(1L, 1L);
-    }
 }

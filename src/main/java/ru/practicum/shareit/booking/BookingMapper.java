@@ -20,13 +20,13 @@ public class BookingMapper {
                 .build();
     }
 
-    public static Booking toBooking(BookingDto bookingDto, Item item, User booker) {
+    public static Booking toBooking(BookingDto dto, Item item, User booker) {
         Booking booking = Booking.builder()
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .status(bookingDto.getStatus() == null ? Status.WAITING : bookingDto.getStatus())
+                .start(dto.getStart())
+                .end(dto.getEnd())
                 .item(item)
                 .booker(booker)
+                .status(dto.getStatus() == null ? Status.WAITING : dto.getStatus())
                 .build();
         return booking;
     }

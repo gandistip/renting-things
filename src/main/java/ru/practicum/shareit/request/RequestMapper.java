@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @UtilityClass
 public class RequestMapper {
 
-    public static Request toRequest(RequestDto requestDto, User user) {
+    public static Request toRequest(RequestDto dto, User user) {
         Request request = Request.builder()
-                .description(requestDto.getDescription())
+                .description(dto.getDescription())
                 .requester(user)
                 .created(LocalDateTime.now())
                 .build();

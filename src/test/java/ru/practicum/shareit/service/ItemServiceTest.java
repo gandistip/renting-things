@@ -25,7 +25,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepo;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -41,58 +40,47 @@ public class ItemServiceTest {
     @MockBean
     private ItemRepo itemRepo;
     @MockBean
+    private UserRepo userRepo;
+    @MockBean
     private CommentRepo commentRepo;
     @MockBean
     private BookingRepo bookingRepo;
-    @MockBean
-    private UserRepo userRepo;
     @MockBean
     private RequestRepo requestRepo;
     @Mock
     private Util util;
 
-    private User user;
     private Item item;
-    private ItemDto itemDto;
-    private Comment comment;
-    private CommentDto commentDto;
+    private User user;
     private Request request;
     private Booking booking1;
     private Booking booking2;
+    private Comment comment;
+    private ItemDto itemDto;
+    private CommentDto commentDto;
 
     @BeforeEach
     void beforeEach() {
         user = User.builder()
                 .id(1L)
-                .name("andrey")
-                .email("andrey@yandex.ru")
+                .name("userName")
+                .email("u@ya.ru")
                 .build();
 
         request = Request.builder()
                 .id(1L)
-                .description("text request description")
+                .description("request descr")
                 .created(LocalDateTime.now())
                 .build();
 
         item = Item.builder()
                 .id(1L)
-                .name("hammer")
-                .description("steel hammer")
+                .name("itemName")
+                .description("item descr")
                 .available(true)
                 .owner(user)
                 .request(request)
                 .build();
-
-        itemDto = ItemMapper.toItemDto(item);
-
-        comment = Comment.builder()
-                .id(1L)
-                .author(user)
-                .created(LocalDateTime.now())
-                .text("text")
-                .build();
-
-        commentDto = CommentMapper.toCommentDto(comment);
 
         booking1 = Booking.builder()
                 .id(1L)
@@ -111,10 +99,20 @@ public class ItemServiceTest {
                 .booker(user)
                 .status(Status.APPROVED)
                 .build();
+
+        comment = Comment.builder()
+                .id(1L)
+                .author(user)
+                .created(LocalDateTime.now())
+                .text("comment")
+                .build();
+
+        itemDto = ItemMapper.toItemDto(item);
+        commentDto = CommentMapper.toCommentDto(comment);
     }
 
     @Test
-    void addItem() {
+    void save() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepo.existsById(anyLong())).thenReturn(true);
@@ -130,7 +128,26 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItem() {
+    void saveComment() {
+        when(userRepo.existsById(anyLong())).thenReturn(true);
+        when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
+        when(itemRepo.existsById(anyLong())).thenReturn(true);
+        when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
+        when(bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(),
+                any(Status.class), any(LocalDateTime.class))).thenReturn(booking1);
+        when(commentRepo.save(any(Comment.class))).thenReturn(comment);
+
+        CommentDto commentDtoTest = itemService.saveComment(user.getId(), item.getId(), commentDto);
+
+        assertEquals(1, comment.getId());
+        assertEquals(commentDtoTest.getText(), comment.getText());
+        assertEquals(commentDtoTest.getAuthorName(), comment.getAuthor().getName());
+
+        verify(commentRepo, times(1)).save(any(Comment.class));
+    }
+
+    @Test
+    void update() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
         when(itemRepo.existsById(anyLong())).thenReturn(true);
@@ -147,19 +164,18 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItemNotBelongUser() {
+    void itemNotThisUser() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
         when(itemRepo.existsById(anyLong())).thenReturn(true);
         when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
-
         when(itemRepo.findByOwnerId(anyLong())).thenReturn(Collections.emptyList());
 
         assertThrows(NotExistException.class, () -> itemService.update(item.getId(), user.getId(), itemDto));
     }
 
     @Test
-    void getItemById() {
+    void findByItemId() {
         when(itemRepo.existsById(anyLong())).thenReturn(true);
         when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
         when(userRepo.existsById(anyLong())).thenReturn(true);
@@ -178,15 +194,15 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItemsUser() {
+    void findAllByOwnerId() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
-        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(5 / 10, 10));
+        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(0, 5));
         when(itemRepo.findByOwnerId(anyLong())).thenReturn(List.of(item));
         when(bookingRepo.findNextBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking1));
         when(bookingRepo.findLastBooking(List.of(item.getId()), Status.APPROVED, PageRequest.of(0, 1))).thenReturn(List.of(booking2));
         when(commentRepo.findByItemId(anyLong())).thenReturn(List.of(comment));
 
-        ItemDto itemDtoTest = itemService.findAllByOwnerId(user.getId(), 5, 10).get(0);
+        ItemDto itemDtoTest = itemService.findAllByOwnerId(user.getId(), 0, 5).get(0);
 
         assertEquals(itemDtoTest.getId(), item.getId());
         assertEquals(itemDtoTest.getDescription(), item.getDescription());
@@ -197,11 +213,11 @@ public class ItemServiceTest {
     }
 
     @Test
-    void searchItem() {
-        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(5 / 10, 10));
-        when(itemRepo.search(anyString(), any(PageRequest.class))).thenReturn(new ArrayList<>(List.of(item)));
+    void findAllByText() {
+        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(0, 5));
+        when(itemRepo.search(anyString(), any(PageRequest.class))).thenReturn(List.of(item));
 
-        ItemDto itemDtoTest = itemService.findAllByText("text", 5, 10).get(0);
+        ItemDto itemDtoTest = itemService.findAllByText("text", 0, 5).get(0);
 
         assertEquals(itemDtoTest.getId(), item.getId());
         assertEquals(itemDtoTest.getDescription(), item.getDescription());
@@ -212,41 +228,21 @@ public class ItemServiceTest {
     }
 
     @Test
-    void searchItemEmptyText() {
-        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(5 / 10, 10));
-
-        List<ItemDto> itemDtoTest = itemService.findAllByText("", 5, 10);
-
+    void findAllByTextEmptyText() {
+        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(0, 5));
+        List<ItemDto> itemDtoTest = itemService.findAllByText("", 0, 5);
         assertTrue(itemDtoTest.isEmpty());
-
         verify(itemRepo, times(0)).search(anyString(), any(PageRequest.class));
     }
 
     @Test
-    void addComment() {
+    void saveCommentForNotBooker() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
         when(itemRepo.existsById(anyLong())).thenReturn(true);
         when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
-        when(bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(), any(Status.class), any(LocalDateTime.class))).thenReturn(booking1);
-        when(commentRepo.save(any(Comment.class))).thenReturn(comment);
-
-        CommentDto commentDtoTest = itemService.saveComment(user.getId(), item.getId(), commentDto);
-
-        assertEquals(1, comment.getId());
-        assertEquals(commentDtoTest.getText(), comment.getText());
-        assertEquals(commentDtoTest.getAuthorName(), comment.getAuthor().getName());
-
-        verify(commentRepo, times(1)).save(any(Comment.class));
-    }
-
-    @Test
-    void addCommentUserNotBookingItem() {
-        when(userRepo.existsById(anyLong())).thenReturn(true);
-        when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
-        when(itemRepo.existsById(anyLong())).thenReturn(true);
-        when(itemRepo.findById(anyLong())).thenReturn(Optional.of(item));
-        when(bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(), any(Status.class), any(LocalDateTime.class))).thenReturn(null);
+        when(bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(),
+                any(Status.class), any(LocalDateTime.class))).thenReturn(null);
 
         assertThrows(ValidationException.class, () -> itemService.saveComment(user.getId(), item.getId(), commentDto));
     }

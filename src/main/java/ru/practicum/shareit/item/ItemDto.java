@@ -22,8 +22,8 @@ public class ItemDto {
     @NotNull
     private Boolean available;
 
-    private BookingForItemDto lastBooking;
-    private BookingForItemDto nextBooking;
+    private BookingDtoForItemDto lastBooking;
+    private BookingDtoForItemDto nextBooking;
 
     private List<CommentDto> comments;
 
@@ -31,7 +31,7 @@ public class ItemDto {
 
     @Data
     @Builder
-    public static class BookingForItemDto {
+    public static class BookingDtoForItemDto {
         private Long id;
         private Long bookerId;
     }

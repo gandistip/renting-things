@@ -26,27 +26,20 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @WebMvcTest(controllers = ItemController.class)
 public class ItemControllerTest {
 
     @MockBean
     private ItemService itemService;
-
+    @Autowired
+    private MockMvc mvc;
     @Autowired
     private ObjectMapper mapper;
 
-    @Autowired
-    private MockMvc mvc;
-
     private ItemDto itemDto1;
-
     private ItemDto itemDto2;
-
     private CommentDto commentDto;
-
     private Request request;
-
     private User user;
 
     @BeforeEach
@@ -54,28 +47,28 @@ public class ItemControllerTest {
 
         user = User.builder()
                 .id(1L)
-                .name("andrey")
-                .email("andrey@yandex.ru")
+                .name("userName")
+                .email("ya@ya.ru")
                 .build();
 
         request = Request.builder()
                 .id(2L)
-                .description("ivan")
+                .description("request descr")
                 .requester(user)
                 .created(LocalDateTime.now())
                 .build();
 
         commentDto = CommentDto.builder()
                 .id(1L)
-                .text("text")
+                .text("comment")
                 .created(LocalDateTime.now())
-                .authorName("Artur")
+                .authorName("comment author")
                 .build();
 
         itemDto1 = ItemDto.builder()
                 .id(1L)
-                .name("hammer")
-                .description("steel hammer")
+                .name("itemName1")
+                .description("item descr 1")
                 .available(true)
                 .comments(List.of(commentDto))
                 .requestId(request.getId())
@@ -83,8 +76,8 @@ public class ItemControllerTest {
 
         itemDto2 = ItemDto.builder()
                 .id(1L)
-                .name("saw")
-                .description("good saw")
+                .name("itemName2")
+                .description("item descr 2")
                 .available(true)
                 .comments(Collections.emptyList())
                 .requestId(request.getId())
@@ -109,6 +102,22 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.requestId", is(itemDto1.getRequestId()), Long.class));
 
         verify(itemService, times(1)).save(1L, itemDto1);
+    }
+
+    @Test
+    void saveComment() throws Exception {
+        when(itemService.saveComment(anyLong(), anyLong(), any(CommentDto.class))).thenReturn(commentDto);
+
+        mvc.perform(post("/items/{itemId}/comment", 1L)
+                        .content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(commentDto)));
+
+        verify(itemService, times(1)).saveComment(1L, 1L, commentDto);
     }
 
     @Test
@@ -152,12 +161,11 @@ public class ItemControllerTest {
 
     @Test
     void findAllByOwnerId() throws Exception {
-
         when(itemService.findAllByOwnerId(anyLong(), anyInt(), anyInt())).thenReturn(List.of(itemDto1, itemDto2));
 
         mvc.perform(get("/items")
                         .param("from", "0")
-                        .param("size", "10")
+                        .param("size", "5")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -165,7 +173,7 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(itemDto1, itemDto2))));
 
-        verify(itemService, times(1)).findAllByOwnerId(1L, 0, 10);
+        verify(itemService, times(1)).findAllByOwnerId(1L, 0, 5);
     }
 
     @Test
@@ -175,29 +183,14 @@ public class ItemControllerTest {
         mvc.perform(get("/items/search")
                         .param("text", "text")
                         .param("from", "0")
-                        .param("size", "10")
+                        .param("size", "5")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(itemDto1, itemDto2))));
 
-        verify(itemService, times(1)).findAllByText("text", 0, 10);
+        verify(itemService, times(1)).findAllByText("text", 0, 5);
     }
 
-    @Test
-    void saveComment() throws Exception {
-        when(itemService.saveComment(anyLong(), anyLong(), any(CommentDto.class))).thenReturn(commentDto);
-
-        mvc.perform(post("/items/{itemId}/comment", 1L)
-                        .content(mapper.writeValueAsString(commentDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1L))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(commentDto)));
-
-        verify(itemService, times(1)).saveComment(1L, 1L, commentDto);
-    }
 }

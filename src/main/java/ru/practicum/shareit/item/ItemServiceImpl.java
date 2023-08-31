@@ -48,6 +48,23 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Transactional
+    public CommentDto saveComment(long userId, long itemId, CommentDto commentDto) {
+
+        User user = util.getUserIfExist(userId);
+        Item item = util.getItemIfExist(itemId);
+
+        if (bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(
+                itemId, userId, Status.APPROVED, LocalDateTime.now()) == null) {
+            throw new ValidationException("Пользователь с " + userId + " не бронировал вещь с " + itemId);
+        }
+
+        Comment comment = CommentMapper.toComment(commentDto, item, user, LocalDateTime.now());
+
+        commentRepo.save(comment);
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    @Transactional
     @Override
     public ItemDto update(long itemId, long userId, ItemDto itemDto) {
 
@@ -80,7 +97,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public List<ItemDto> findAllByText(String text, int from, int size) {
-
         PageRequest pageRequest = util.getPageIfExist(from, size);
 
         if (text.isEmpty()) {
@@ -101,21 +117,19 @@ public class ItemServiceImpl implements ItemService {
 
         if (item.getOwner().getId() == userId) {
 
-            List<Booking> lastBooking = bookingRepo.findLastBooking(
-                    List.of(itemId), Status.APPROVED, PageRequest.of(0, 1));
+            List<Booking> lastBooking = bookingRepo.findLastBooking(List.of(itemId), Status.APPROVED, PageRequest.of(0, 1));
             if (lastBooking.isEmpty()) {
                 itemDto.setLastBooking(null);
             } else {
-                itemDto.setLastBooking(ItemDto.BookingForItemDto.builder().id(lastBooking.get(0).getId())
+                itemDto.setLastBooking(ItemDto.BookingDtoForItemDto.builder().id(lastBooking.get(0).getId())
                         .bookerId(lastBooking.get(0).getBooker().getId()).build());
             }
 
-            List<Booking> nextBooking = bookingRepo.findNextBooking(
-                    List.of(itemId), Status.APPROVED, PageRequest.of(0, 1));
+            List<Booking> nextBooking = bookingRepo.findNextBooking(List.of(itemId), Status.APPROVED, PageRequest.of(0, 1));
             if (nextBooking.isEmpty()) {
                 itemDto.setNextBooking(null);
             } else {
-                itemDto.setNextBooking(ItemDto.BookingForItemDto.builder().id(nextBooking.get(0).getId())
+                itemDto.setNextBooking(ItemDto.BookingDtoForItemDto.builder().id(nextBooking.get(0).getId())
                         .bookerId(nextBooking.get(0).getBooker().getId()).build());
             }
         }
@@ -163,7 +177,7 @@ public class ItemServiceImpl implements ItemService {
             } else {
                 Booking lastBooking = lastBookings.stream().filter(b -> b.getItem().getId().equals(itemId))
                         .collect(Collectors.toList()).get(0);
-                itemDto.setLastBooking(ItemDto.BookingForItemDto.builder().id(lastBooking.getId())
+                itemDto.setLastBooking(ItemDto.BookingDtoForItemDto.builder().id(lastBooking.getId())
                         .bookerId(lastBooking.getBooker().getId()).build());
             }
 
@@ -174,7 +188,7 @@ public class ItemServiceImpl implements ItemService {
             } else {
                 Booking nextBooking = nextBookings.stream().filter(b -> b.getItem().getId().equals(itemId))
                         .collect(Collectors.toList()).get(0);
-                itemDto.setNextBooking(ItemDto.BookingForItemDto.builder().id(nextBooking.getId())
+                itemDto.setNextBooking(ItemDto.BookingDtoForItemDto.builder().id(nextBooking.getId())
                         .bookerId(nextBooking.getBooker().getId()).build());
             }
 
@@ -194,22 +208,5 @@ public class ItemServiceImpl implements ItemService {
 
         return result.values().stream().skip(page.getPageNumber()).limit(page.getPageSize())
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public CommentDto saveComment(long userId, long itemId, CommentDto commentDto) {
-
-        User user = util.getUserIfExist(userId);
-        Item item = util.getItemIfExist(itemId);
-
-        if (bookingRepo.findFirstByItemIdAndBookerIdAndStatusAndEndBefore(
-                itemId, userId, Status.APPROVED, LocalDateTime.now()) == null) {
-            throw new ValidationException("Пользователь с " + userId + " не бронировал вещь с " + itemId);
-        }
-
-        Comment comment = CommentMapper.toComment(commentDto, item, user, LocalDateTime.now());
-
-        commentRepo.save(comment);
-        return CommentMapper.toCommentDto(comment);
     }
 }
