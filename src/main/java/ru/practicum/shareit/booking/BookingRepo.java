@@ -1,10 +1,10 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,52 +12,42 @@ import java.util.List;
 @Repository
 public interface BookingRepo extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllByBookerIdOrderByStartDesc(
-            long bookerId);
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start > CURRENT_TIME " +
+            "ORDER BY b.start")
+    List<Booking> findNextBooking(List<Long> itemsId, Status status, Pageable page);
 
-    @Query(
-            "select b " +
-                    "from Booking b " +
-                    "where b.booker.id = ?1 and CURRENT_TIME between b.start and b.end " +
-                    "order by b.start"
-    )
-    List<Booking> findAllCurrentByItemBookerId(long bookerId);
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start < CURRENT_TIME " +
+            "ORDER BY b.start DESC")
+    List<Booking> findLastBooking(List<Long> itemsId, Status status, Pageable page);
 
-    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(
-            long bookerId, LocalDateTime dateTime);
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.booker.id = ?1 AND CURRENT_TIME BETWEEN b.start AND b.end " +
+            "ORDER BY b.start")
+    Page<Booking> findAllCurrentByItemBookerId(long bookerId, Pageable page);
 
-    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(
-            long bookerId, LocalDateTime dateTime);
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.item.owner.id = ?1 AND CURRENT_TIME BETWEEN b.start AND b.end " +
+            "ORDER BY b.start")
+    Page<Booking> findAllCurrentByItemOwnerId(long ownerId, Pageable page);
 
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(
-            long bookerId, Status status);
+    Booking findFirstByItemIdAndBookerIdAndStatusAndEndBefore(long itemId, long bookerId, Status status, LocalDateTime dateTime);
 
-    List<Booking> findAllByItemOwnerIdOrderByStartDesc(
-            long ownerId);
+    Page<Booking> findAllByBookerIdOrderByStartDesc(long bookerId, Pageable page);
 
-    @Query(
-            "select b " +
-                    "from Booking b " +
-                    "where b.item.owner.id = ?1 and CURRENT_TIME between b.start and b.end " +
-                    "order by b.start"
-    )
-    List<Booking> findAllCurrentByItemOwnerId(long ownerId);
+    Page<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(long bookerId, LocalDateTime dateTime, Pageable page);
 
-    List<Booking> findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(
-            long ownerId, LocalDateTime dateTime);
+    Page<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(long bookerId, LocalDateTime dateTime, Pageable page);
 
-    List<Booking> findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
-            long ownerId, LocalDateTime dateTime);
+    Page<Booking> findAllByBookerIdAndStatusOrderByStartDesc(long bookerId, Status status, Pageable page);
 
-    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(
-            long ownerId, Status status);
+    Page<Booking> findAllByItemOwnerIdOrderByStartDesc(long ownerId, Pageable page);
 
-    Booking findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
-            long itemId, Status status, LocalDateTime dateTime);
+    Page<Booking> findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(long ownerId, LocalDateTime dateTime, Pageable page);
 
-    Booking findFirstByItemIdAndStatusAndStartBeforeOrderByStartDesc(
-            long itemId, Status status, LocalDateTime dateTime);
+    Page<Booking> findAllByItemOwnerIdAndStartAfterOrderByStartDesc(long ownerId, LocalDateTime dateTime, Pageable page);
 
-    Booking findFirstByItemIdAndBookerIdAndStatusAndEndBefore(
-            long itemId, long bookerId, Status status, LocalDateTime dateTime);
+    Page<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(long ownerId, Status status, Pageable page);
+
 }

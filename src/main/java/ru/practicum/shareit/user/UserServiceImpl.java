@@ -3,8 +3,8 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.Util;
 import ru.practicum.shareit.exceptions.AlreadyExistException;
-import ru.practicum.shareit.exceptions.NotExistException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
+    private final Util util;
 
     @Transactional
     @Override
@@ -27,7 +28,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto update(UserDto userDto, long userId) {
-        User updateUser = userRepo.findById(userId).orElseThrow(() -> new NotExistException("Пользователь - не найден"));
+        User updateUser = util.getUserIfExist(userId);
+
         User user = UserMapper.toUser(userDto);
 
         if (user.getName() != null) {
@@ -50,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteById(long userId) {
-        userRepo.findById(userId).orElseThrow(() -> new NotExistException("Пользователь - не найден"));
+        util.getUserIfExist(userId);
         userRepo.deleteById(userId);
     }
 
@@ -62,7 +64,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto findById(long userId) {
-        User user = userRepo.findById(userId).orElseThrow(() -> new NotExistException("Пользователь - не найден"));
+        User user = util.getUserIfExist(userId);
         return UserMapper.toUserDto(user);
     }
 }

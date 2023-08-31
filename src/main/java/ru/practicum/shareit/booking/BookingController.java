@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoIn;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/bookings")
+@RequestMapping("/bookings")
 @Validated
 @RequiredArgsConstructor
 @Slf4j
@@ -22,9 +20,9 @@ public class BookingController {
     @PostMapping
     public BookingDto save(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestBody @Valid BookingDtoIn bookingDtoIn) {
+            @RequestBody @Valid BookingDto bookingDto) {
         log.info("Бронирование для пользователя с id={} создать", userId);
-        return bookingService.save(bookingDtoIn, userId);
+        return bookingService.save(bookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
@@ -47,16 +45,20 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findAllByBookerIdByState(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "ALL") String state) {
-        log.info("Бронирования пользователя с id={} и статусом {} получить", userId, state);
-        return bookingService.findAllByBookerIdByState(userId, BookingServiceImpl.stringToState(state));
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "999") int size) {
+        log.info("Бронирования пользователя с id={} и статусом={} получить", userId, state);
+        return bookingService.findAllByBookerIdByState(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllByOwnerIdByState(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "ALL") String state) {
-        log.info("Бронирования владельца с id={} и статусом {} получить", userId, state);
-        return bookingService.findAllByOwnerIdByState(userId, BookingServiceImpl.stringToState(state));
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "999") int size) {
+        log.info("Бронирования владельца с id={} и статусом={} получить", userId, state);
+        return bookingService.findAllByOwnerIdByState(userId, state, from, size);
     }
 }
