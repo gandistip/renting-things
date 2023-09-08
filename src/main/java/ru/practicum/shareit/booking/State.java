@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.model;
+package ru.practicum.shareit.booking;
 
 public enum State {
     ALL,
@@ -6,5 +6,5 @@ public enum State {
     PAST,
     FUTURE,
     WAITING,
-    REJECTED;
+    REJECTED
 }

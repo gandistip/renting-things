@@ -14,11 +14,11 @@ public class UserMapper {
         return userDto;
     }
 
-    public static User toUser(UserDto userDto) {
+    public static User toUser(UserDto dto) {
         User user = User.builder()
-                .id(userDto.getId())
-                .email(userDto.getEmail())
-                .name(userDto.getName())
+                .id(dto.getId())
+                .email(dto.getEmail())
+                .name(dto.getName())
                 .build();
         return user;
     }
