@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
 @Slf4j
