@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.Util;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepo;
 import ru.practicum.shareit.booking.Status;
@@ -23,6 +22,7 @@ import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.request.RequestRepo;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepo;
+import ru.practicum.shareit.util.Util;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

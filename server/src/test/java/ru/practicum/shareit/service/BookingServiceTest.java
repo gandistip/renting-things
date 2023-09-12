@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.Util;
 import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.exceptions.NotExistException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -19,6 +18,7 @@ import ru.practicum.shareit.item.ItemRepo;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepo;
+import ru.practicum.shareit.util.Util;
 
 import java.time.LocalDateTime;
 import java.util.List;
