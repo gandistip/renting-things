@@ -30,7 +30,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(
-            @PathVariable("itemId") long itemId,
+            @PathVariable long itemId,
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestBody ItemDto itemDto) {
         log.info("Вещь с id={} обновить на вещь={}", itemId, itemDto);
@@ -40,7 +40,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> findByItemId(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @PathVariable("itemId") long itemId) {
+            @PathVariable long itemId) {
         log.info("Вещь с id={} получить", itemId);
         return itemClient.findByItemId(itemId, userId);
     }
@@ -56,7 +56,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> findAllByText(
-            @RequestParam("text") String text,
+            @RequestParam String text,
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
             @RequestParam(defaultValue = "999") @Positive int size) {
         log.info("Вещи с подстрокой={} получить", text);
@@ -65,7 +65,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> saveComment(
-            @PathVariable("itemId") long itemId,
+            @PathVariable long itemId,
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestBody @Valid CommentDto commentDto) {
         log.info("Комментарий={} к вещи с id={} добавить", commentDto.getText(), itemId);
