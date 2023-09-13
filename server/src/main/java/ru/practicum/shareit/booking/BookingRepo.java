@@ -13,22 +13,22 @@ import java.util.List;
 public interface BookingRepo extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start > CURRENT_TIME " +
+            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start > now() " +
             "ORDER BY b.start")
     List<Booking> findNextBooking(List<Long> itemsId, Status status, Pageable page);
 
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start < CURRENT_TIME " +
+            "WHERE b.item.id IN ?1 AND b.status = ?2 AND b.start < now() " +
             "ORDER BY b.start DESC")
     List<Booking> findLastBooking(List<Long> itemsId, Status status, Pageable page);
 
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.booker.id = ?1 AND CURRENT_TIME BETWEEN b.start AND b.end " +
+            "WHERE b.booker.id = ?1 AND now() BETWEEN b.start AND b.end " +
             "ORDER BY b.start")
     Page<Booking> findAllCurrentByItemBookerId(long bookerId, Pageable page);
 
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.owner.id = ?1 AND CURRENT_TIME BETWEEN b.start AND b.end " +
+            "WHERE b.item.owner.id = ?1 AND now() BETWEEN b.start AND b.end " +
             "ORDER BY b.start")
     Page<Booking> findAllCurrentByItemOwnerId(long ownerId, Pageable page);
 
