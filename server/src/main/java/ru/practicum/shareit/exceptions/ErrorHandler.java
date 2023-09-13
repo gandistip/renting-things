@@ -15,21 +15,21 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ErrorHandler {
 
-    @ExceptionHandler({AlreadyExistException.class})
+    @ExceptionHandler({AlreadyExistException.class}) //409
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse conflictHandle(Exception e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler({NotExistException.class})
+    @ExceptionHandler({NotExistException.class})    //404
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundHandle(Exception e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({ValidationException.class})
+    @ExceptionHandler({ValidationException.class})  //400
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse badRequestHandle(Exception e) {
         log.error(e.getMessage());
