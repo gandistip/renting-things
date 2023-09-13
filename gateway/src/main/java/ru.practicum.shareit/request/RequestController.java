@@ -22,7 +22,7 @@ public class RequestController {
 
     @PostMapping
     public ResponseEntity<Object> save(
-            @RequestBody @Valid RequestDto requestDto,
+            @Valid @RequestBody RequestDto requestDto,
             @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Запрос '{}' от пользователя с id={} создать", requestDto, userId);
         return requestClient.save(userId, requestDto);
@@ -46,8 +46,8 @@ public class RequestController {
     @GetMapping("/all")
     public ResponseEntity<Object> findAllAlien(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "999") @Positive int size) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "999") int size) {
         log.info("Запросы с id={} с предложениями получить", userId);
         return requestClient.findAllAlien(userId, from, size);
     }

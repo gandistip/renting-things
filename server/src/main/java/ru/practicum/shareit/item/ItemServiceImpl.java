@@ -97,12 +97,13 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public List<ItemDto> findAllByText(String text, int from, int size) {
-        PageRequest pageRequest = util.getPageIfExist(from, size);
+        //PageRequest page = util.getPageIfExist(from, size);
+        PageRequest page = PageRequest.of(from / size, size);
 
         if (text.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return itemRepo.search(text, pageRequest).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+            return itemRepo.search(text, page).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
         }
     }
 
@@ -148,7 +149,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findAllByOwnerId(long userId, int from, int size) {
 
-        PageRequest page = util.getPageIfExist(from, size);
+        //PageRequest page = util.getPageIfExist(from, size);
+        PageRequest page = PageRequest.of(from / size, size);
+
         util.getUserIfExist(userId);
 
         List<Item> items = itemRepo.findByOwnerId(userId);

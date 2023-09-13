@@ -22,7 +22,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> save(
-            @RequestBody @Valid ItemDto itemDto,
+            @Valid @RequestBody ItemDto itemDto,
             @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Вещь={} пользователя с id={} добавить", itemDto, userId);
         return itemClient.save(userId, itemDto);
@@ -48,8 +48,8 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<Object> findAllByOwnerId(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "999") @Positive int size) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "999") int size) {
         log.info("Вещи владельца с id={} получить", userId);
         return itemClient.findAllByOwnerId(userId, from, size);
     }
@@ -57,8 +57,8 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<Object> findAllByText(
             @RequestParam String text,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "999") @Positive int size) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "999") int size) {
         log.info("Вещи с подстрокой={} получить", text);
         return itemClient.findAllByText(text, from, size);
     }
@@ -67,7 +67,7 @@ public class ItemController {
     public ResponseEntity<Object> saveComment(
             @PathVariable long itemId,
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestBody @Valid CommentDto commentDto) {
+            @Valid @RequestBody CommentDto commentDto) {
         log.info("Комментарий={} к вещи с id={} добавить", commentDto.getText(), itemId);
         return itemClient.saveComment(userId, itemId, commentDto);
     }

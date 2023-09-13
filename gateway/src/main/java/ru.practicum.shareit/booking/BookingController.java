@@ -24,7 +24,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> save(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestBody @Valid BookingDto bookingDto) {
+            @Valid @RequestBody BookingDto bookingDto) {
         log.info("Бронирование для пользователя с id={} создать", userId);
         return bookingClient.save(userId, bookingDto);
     }
@@ -50,7 +50,7 @@ public class BookingController {
     public ResponseEntity<Object> findAllByBookerIdByState(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
             @Positive @RequestParam(defaultValue = "999") int size) {
         BookingState bookingState = BookingState.from(state).orElseThrow(() -> new ValidationException("Unknown state: " + state));
         log.info("Бронирования пользователя с id={} и статусом={} получить", userId, state);
@@ -61,8 +61,8 @@ public class BookingController {
     public ResponseEntity<Object> findAllByOwnerIdByState(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "999") @Positive int size) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+            @Positive @RequestParam(defaultValue = "999") int size) {
         BookingState bookingState = BookingState.from(state).orElseThrow(() -> new ValidationException("Unknown state: " + state));
         log.info("Бронирования владельца с id={} и статусом={} получить", userId, state);
         return bookingClient.findAllByOwnerIdByState(userId, bookingState, from, size);

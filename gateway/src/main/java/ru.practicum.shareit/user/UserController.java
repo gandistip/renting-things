@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> save(
-            @RequestBody @Valid UserDto userDto) {
+            @Valid @RequestBody UserDto userDto) {
         log.info("Пользователя={} создать", userDto);
         return userClient.save(userDto);
     }
