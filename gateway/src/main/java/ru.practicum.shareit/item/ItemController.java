@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Collections;
 
 @Controller
 @RequestMapping("/items")
@@ -22,16 +23,16 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> save(
-            @Valid @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") long userId) {
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @Valid @RequestBody ItemDto itemDto) {
         log.info("Вещь={} пользователя с id={} добавить", itemDto, userId);
         return itemClient.save(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(
-            @PathVariable long itemId,
             @RequestHeader("X-Sharer-User-Id") long userId,
+            @PathVariable long itemId,
             @RequestBody ItemDto itemDto) {
         log.info("Вещь с id={} обновить на вещь={}", itemId, itemDto);
         return itemClient.update(userId, itemId, itemDto);
@@ -60,13 +61,17 @@ public class ItemController {
             @PositiveOrZero @RequestParam(defaultValue = "0") int from,
             @Positive @RequestParam(defaultValue = "999") int size) {
         log.info("Вещи с подстрокой={} получить", text);
-        return itemClient.findAllByText(text, from, size);
+        if (text.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        } else {
+            return itemClient.findAllByText(text, from, size);
+        }
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> saveComment(
-            @PathVariable long itemId,
             @RequestHeader("X-Sharer-User-Id") long userId,
+            @PathVariable long itemId,
             @Valid @RequestBody CommentDto commentDto) {
         log.info("Комментарий={} к вещи с id={} добавить", commentDto.getText(), itemId);
         return itemClient.saveComment(userId, itemId, commentDto);

@@ -91,14 +91,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public List<BookingDto> findAllByBookerIdByState(long userId, String stateString, int from, int size) {
+    public List<BookingDto> findAllByBookerIdByState(long userId, String state, int from, int size) {
 
         PageRequest page = util.getPageIfExist(from, size);
-        State state = util.getStateIfExist(stateString);
         util.getUserIfExist(userId);
 
         Page<Booking> bookings;
-        switch (state) {
+        switch (State.valueOf(state)) {
             case ALL:
                 bookings = bookingRepo.findAllByBookerIdOrderByStartDesc(userId, page);
                 break;
@@ -126,10 +125,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public List<BookingDto> findAllByOwnerIdByState(long userId, String stateString, int from, int size) {
+    public List<BookingDto> findAllByOwnerIdByState(long userId, String state, int from, int size) {
 
         PageRequest page = util.getPageIfExist(from, size);
-        State state = util.getStateIfExist(stateString);
         util.getUserIfExist(userId);
 
         if (itemRepo.findByOwnerId(userId).isEmpty()) {
@@ -138,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
 
         Page<Booking> bookings;
 
-        switch (state) {
+        switch (State.valueOf(state)) {
             case ALL:
                 bookings = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(userId, page);
                 break;

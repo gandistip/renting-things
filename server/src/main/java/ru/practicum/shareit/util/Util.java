@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepo;
-import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.exceptions.NotExistException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -53,14 +52,6 @@ public class Util {
         }
         Request request = requestRepo.findById(requestId).orElse(null);
         return request;
-    }
-
-    public State getStateIfExist(String state) {
-        try {
-            return State.valueOf(state);
-        } catch (Exception e) {
-            throw new ValidationException("Unknown state: " + state);
-        }
     }
 
     public PageRequest getPageIfExist(int from, int size) {

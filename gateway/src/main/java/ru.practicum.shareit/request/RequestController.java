@@ -22,8 +22,8 @@ public class RequestController {
 
     @PostMapping
     public ResponseEntity<Object> save(
-            @Valid @RequestBody RequestDto requestDto,
-            @RequestHeader("X-Sharer-User-Id") long userId) {
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @Valid @RequestBody RequestDto requestDto) {
         log.info("Запрос '{}' от пользователя с id={} создать", requestDto, userId);
         return requestClient.save(userId, requestDto);
     }

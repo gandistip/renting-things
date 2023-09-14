@@ -228,14 +228,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    void findAllByTextEmptyText() {
-        when(util.getPageIfExist(anyInt(), anyInt())).thenReturn(PageRequest.of(0, 5));
-        List<ItemDto> itemDtoTest = itemService.findAllByText("", 0, 5);
-        assertTrue(itemDtoTest.isEmpty());
-        verify(itemRepo, times(0)).search(anyString(), any(PageRequest.class));
-    }
-
-    @Test
     void saveCommentForNotBooker() {
         when(userRepo.existsById(anyLong())).thenReturn(true);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));

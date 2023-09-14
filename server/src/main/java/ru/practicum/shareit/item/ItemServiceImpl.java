@@ -49,7 +49,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     public CommentDto saveComment(long userId, long itemId, CommentDto commentDto) {
-
         User user = util.getUserIfExist(userId);
         Item item = util.getItemIfExist(itemId);
 
@@ -97,14 +96,8 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public List<ItemDto> findAllByText(String text, int from, int size) {
-        //PageRequest page = util.getPageIfExist(from, size);
-        PageRequest page = PageRequest.of(from / size, size);
-
-        if (text.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return itemRepo.search(text, page).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
-        }
+        PageRequest page = util.getPageIfExist(from, size);
+        return itemRepo.search(text, page).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -149,9 +142,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findAllByOwnerId(long userId, int from, int size) {
 
-        //PageRequest page = util.getPageIfExist(from, size);
-        PageRequest page = PageRequest.of(from / size, size);
-
+        PageRequest page = util.getPageIfExist(from, size);
         util.getUserIfExist(userId);
 
         List<Item> items = itemRepo.findByOwnerId(userId);

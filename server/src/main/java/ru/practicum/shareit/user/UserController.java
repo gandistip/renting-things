@@ -2,16 +2,13 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class UserController {
 
@@ -19,7 +16,7 @@ public class UserController {
 
     @PostMapping()
     public UserDto save(
-            @RequestBody @Valid UserDto userDto) {
+            @RequestBody UserDto userDto) {
         log.info("Пользователя={} создать", userDto);
         return userService.save(userDto);
     }

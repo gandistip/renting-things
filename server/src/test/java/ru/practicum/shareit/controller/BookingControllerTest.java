@@ -47,7 +47,7 @@ public class BookingControllerTest {
         userDto = UserDto.builder()
                 .id(1L)
                 .name("userName")
-                .email("email@ya.ru")
+                .email("u@ya.ru")
                 .build();
 
         itemDto = ItemDto.builder()
