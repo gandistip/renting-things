@@ -1,4 +1,4 @@
-# Веб-сервис Аренды вещей на Java Spring Boot
+# Аренда вещей - веб-сервис на Java Spring Boot
 Стек - Java, Spring Boot, PostgreSQL, Hibernate ORM, Maven, Lombok, Docker, REST API, Mockito, JUnit.
 
 ## О проекте
